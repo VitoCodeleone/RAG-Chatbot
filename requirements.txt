@@ -2,3 +2,4 @@ sentence-transformers
 pinecone-client
 langchain
 flask
+-e .
