@@ -1,0 +1,154 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: linear-gradient(to right, #f7c0ec, #a7bdea);
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.container {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr 5fr 0.8fr;
+  justify-content: space-between;
+  background-color: #1a2a4b;
+  color: white;
+  border-radius: 15px;
+  width: 500px;
+  height: 600px;
+}
+
+.infobar {
+  width: 100%;
+  height: 65px;
+  padding: 5px;
+  margin-top: 5px;
+  position: relative;
+}
+
+.infobar p {
+  display: inline;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  color: limegreen;
+  background-color: limegreen;
+  border-radius: 50%;
+  width: 8px;
+  height: 8px;
+  margin-left: 5px;
+}
+
+.infobar img {
+  display: inline-block;
+  margin-top: 5px;
+  margin-left: 18px;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  border: 1px solid black;
+  background-color: lightblue;
+}
+
+.infobar h2 {
+  display: inline-block;
+  position: absolute;
+  font-family: "Roboto", system-ui;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.messageArea {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #080f1e #1a2a4b;
+}
+
+.messageContainer {
+  display: flex;
+  gap: 10px;
+  padding: 0px 5px;
+  width: 100%;
+}
+
+.messageInfo {
+  display: flex;
+  flex-flow: column wrap;
+}
+
+.messageInfo img {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background-color: lightblue;
+}
+
+.messageInfo h5 {
+  text-align: center;
+  font-family: "Roboto", system-ui;
+  font-size: 10px;
+}
+
+.user {
+  flex-direction: row-reverse;
+}
+
+.message {
+  align-self: center;
+  word-break: break-all;
+  padding: 10px;
+  width: 70%;
+  min-height: 1rem;
+  font-family: "Roboto", system-ui;
+}
+
+.message-ai {
+  background-color: rgb(4, 4, 213);
+  border-radius: 0px 10px 10px 10px;
+}
+
+.message-user {
+  background-color: rgb(52, 206, 52);
+  border-radius: 10px 0px 10px 10px;
+  text-align: end;
+}
+
+.messageInput {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.messageInput form {
+  padding: 0px 15px;
+  width: 100%;
+}
+
+.messageInput form input {
+  background-color: #111c34;
+  border-radius: 10px;
+  color: white;
+  border: none;
+  width: 100%;
+  height: 40px;
+  padding: 12px;
+  font-size: 1rem;
+}
+
+input:focus {
+  outline: none;
+}
