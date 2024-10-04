@@ -15,95 +15,80 @@
         <h2>Ask me anything!</h2>
       </div>
 
-      <div class="messageArea">
-        <div class="messageContainer user">
-          <div class="messageInfo">
-            <img src="{{url_for('static', filename='user.png')}}" alt="" />
-            <h5>10:00</h5>
-          </div>
-          <div class="message message-user">Test small</div>
-        </div>
-
-        <div class="messageContainer ai">
-          <div class="messageInfo">
-            <img src="{{url_for('static', filename='nurse.png')}}" alt="" />
-            <h5>10:00</h5>
-          </div>
-          <div class="message message-ai">Answer small</div>
-        </div>
-
-        <div class="messageContainer user">
-          <div class="messageInfo">
-            <img src="{{url_for('static', filename='user.png')}}" alt="" />
-            <h5>10:00</h5>
-          </div>
-          <div class="message message-user">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit.
-            Perspiciatis iure, placeat est dolor, molestias debitis officia quam
-            reprehenderit cum aperiam mollitia magni aliquid alias id veniam
-            facere accusantium, dignissimos dicta.
-          </div>
-        </div>
-
-        <div class="messageContainer ai">
-          <div class="messageInfo">
-            <img src="{{url_for('static', filename='nurse.png')}}" alt="" />
-            <h5>10:00</h5>
-          </div>
-          <div class="message message-ai">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptas
-            incidunt blanditiis ab dolore iusto reiciendis? Ad magnam modi, unde
-            fugiat nemo, ducimus quos deserunt voluptatibus inventore quasi vel,
-            eos nostrum?
-          </div>
-        </div>
-
-        <div class="messageContainer user">
-          <div class="messageInfo">
-            <img src="{{url_for('static', filename='user.png')}}" alt="" />
-            <h5>10:00</h5>
-          </div>
-          <div class="message message-user">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Saepe odio
-            magni consequuntur inventore laboriosam officiis deserunt provident
-            quidem itaque aliquid omnis error repellat, esse maxime voluptatem
-            quaerat culpa modi doloribus. Veritatis excepturi ut minus
-            laudantium cum voluptas dignissimos enim similique molestias illum,
-            perferendis aut ullam deleniti non. Ea, aliquid error facere, cum
-            dolorum ut odio, fuga quod beatae excepturi cupiditate. Illo aperiam
-            natus voluptatibus sunt eligendi adipisci possimus beatae! Inventore
-            aliquam voluptates consequuntur sapiente, qui corrupti magnam
-            provident impedit suscipit earum doloremque? Sit tempore autem ipsam
-            quod quos voluptatibus quaerat. Incidunt voluptas adipisci,
-            voluptatibus optio quae pariatur nobis exercitationem soluta, ab,
-            sint saepe. Quis aut laudantium facere reiciendis unde ipsum ullam
-            quae ut nostrum dolorem? Maxime aliquam minus accusantium neque. Et
-            unde minima veritatis neque. Quo, ipsam omnis? Fuga error doloremque
-            velit exercitationem dolores quidem at? Ipsum nihil debitis eveniet
-            ipsa, blanditiis ad distinctio porro natus ipsam quasi neque
-            molestiae?
-          </div>
-        </div>
-
-        <div class="messageContainer ai">
-          <div class="messageInfo">
-            <img src="{{url_for('static', filename='nurse.png')}}" alt="" />
-            <h5>10:00</h5>
-          </div>
-          <div class="message message-ai">Scroll test</div>
-        </div>
-      </div>
+      <div class="messageArea"></div>
 
       <div class="messageInput">
-        <form action="/get" method="post">
+        <form action="/get" id="userForm" method="post">
           <input
             type="text"
             name="msg"
             id="msg"
             placeholder="Type your message..."
+            required
+            autocomplete="off"
           />
         </form>
       </div>
     </div>
+
+    <script>
+      var date = new Date();
+      var appendZero = (unit) => {
+        return (unit < 10 ? "0" : "") + unit;
+      };
+      var dateText =
+        appendZero(date.getHours()) + ":" + appendZero(date.getMinutes());
+
+      document
+        .getElementById("userForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+
+          const msgbox = document.getElementById("msg");
+          const userText = msgbox.value;
+          msgbox.value = "";
+
+          var messageArea = document.getElementsByClassName("messageArea")[0];
+
+          messageArea.innerHTML += `<div class="messageContainer user">
+          <div class="messageInfo">
+            <img src="{{url_for('static', filename='user.png')}}" alt="" />
+            <h5>${dateText}</h5>
+          </div>
+          <div class="message message-user">${userText}</div>
+        </div>`;
+
+          const jsonData = {
+            msg: userText,
+          };
+
+          const options = {
+            method: "POST",
+            headers: {
+              "Content-type": "application/json",
+            },
+            body: JSON.stringify(jsonData),
+          };
+
+          fetch("/get", options)
+            .then((resp) => {
+              return resp.text();
+            })
+            .then((data) => {
+              var curDate = new Date();
+              var curTimeText =
+                appendZero(curDate.getHours()) +
+                ":" +
+                appendZero(curDate.getMinutes());
+              messageArea.innerHTML += ` <div class="messageContainer ai">
+          <div class="messageInfo">
+            <img src="{{url_for('static', filename='nurse.png')}}" alt="" />
+            <h5>${curTimeText}</h5>
+          </div>
+          <div class="message message-ai">${data}</div>
+        </div>`;
+            });
+        });
+    </script>
   </body>
 </html>
