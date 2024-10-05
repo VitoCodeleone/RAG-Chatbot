@@ -1,4 +1,6 @@
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, request, redirect, flash, url_for
+from flask_pymongo import PyMongo
+from flask_bcrypt import Bcrypt
 from src.helper import download_hf_embeddings
 from langchain_community.vectorstores import Pinecone
 from langchain_ollama import ChatOllama
@@ -17,6 +19,12 @@ HF_TOKEN = os.getenv('HF_TOKEN')
 HUGGINGFACEHUB_API_TOKEN = os.getenv('HUGGINGFACEHUB_API_TOKEN')
 
 app.config["SECRET_KEY"] = os.getenv('SECRET_KEY')
+app.config["MONGO_URI"] = os.getenv('MONGO_URI')
+
+mongo_client = PyMongo(app)
+db = mongo_client.db
+
+bcrypt = Bcrypt(app)
 
 embedding = download_hf_embeddings()
 
@@ -46,8 +54,12 @@ def home():
     signup = SignUpForm()
     return render_template("home.html", title="Home", login=login, signup=signup), 200
 
-@app.route("/get", methods=["GET", "POST"])
+@app.route("/chat")
 def chat():
+    return render_template("chat.html", title="Chatbot")
+
+@app.route("/reply", methods=["GET", "POST"])
+def reply():
     try:
         msg = request.get_json()
         input = msg["msg"]
@@ -55,6 +67,28 @@ def chat():
         return str(result), 200
     except:
         return 'ServerError: Please try again later'
+    
+@app.route("/login", methods=['GET', 'POST'])
+def login():
+    login_form = LoginForm()
+    signup_form = SignUpForm()
+    if login_form.validate_on_submit():
+        return redirect(url_for("dashboard"))
+
+    return render_template("home.html", title="Home", login=login_form, signup=signup_form)
+
+@app.route("/signup", methods=['GET', 'POST'])
+def signup():
+    login_form = LoginForm()
+    signup_form = SignUpForm()
+    if signup_form.validate_on_submit():
+        return redirect(url_for("dashboard"))
+
+    return render_template("home.html", title="Home", login=login_form, signup=signup_form, show_signup=True)
+
+@app.route("/dashboard")
+def dashboard():
+    return render_template("dashboard.html", title="Dashboard")
 
 if __name__ == "__main__":
     app.run(debug=True)

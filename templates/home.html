@@ -34,16 +34,27 @@
           </div>
 
           <div class="form-box">
-            <form action="" class="form-element" id="login-form">
+            <form
+              action="{{url_for('login')}}"
+              class="form-element"
+              id="login-form"
+              method="post"
+            >
               {{ login.hidden_tag() }}
               <div class="email">
                 {{ login.email.label(class="form-label") }} {{
-                login.email(class="form-field") }}
+                login.email(class="form-field") }}{% if login.email.errors %} {%
+                for error in login.email.errors %}
+                <span class="error-message">{{ error }}</span>
+                {% endfor %} {% endif %}
               </div>
               <br />
               <div class="form-element">
                 {{ login.password.label(class="form-label") }} {{
-                login.password(class="form-field") }}
+                login.password(class="form-field")}}{% if login.password.errors
+                %} {% for error in login.password.errors %}
+                <span class="error-message">{{ error }}</span>
+                {% endfor %} {% endif %}
               </div>
               <br />
               <div class="form-element">
@@ -52,22 +63,39 @@
               <br />
             </form>
 
-            <form action="" class="form-element no-display" id="signup-form">
+            <form
+              action="{{url_for('signup')}}"
+              class="form-element no-display"
+              id="signup-form"
+              method="post"
+            >
               {{ signup.hidden_tag() }}
               <div class="email">
                 {{ signup.email.label(class="form-label") }} {{
-                signup.email(class="form-field") }}
+                signup.email(class="form-field") }}{% if signup.email.errors %}
+                {% for error in signup.email.errors %}
+                <span class="error-message">{{ error }}</span>
+                {% endfor %} {% endif %}
               </div>
               <br />
               <div class="form-element">
-                {{ signup.password.label(class="form-label") }} {{
-                signup.password(class="form-field") }}
+                {{ signup.password.label(class="form-label") }}{{
+                signup.password(class="form-field")}}{% if
+                signup.password.errors %} {% for error in signup.password.errors
+                %}
+                <span class="error-message">{{ error }}</span>
+                {% endfor %} {% endif %}
               </div>
               <br />
               <div class="form-element">
                 {{ signup.confirm_password.label(class="form-label") }} {{
-                signup.confirm_password(class="form-field") }}
+                signup.confirm_password(class="form-field") }}{% if
+                signup.confirm_password.errors %} {% for error in
+                signup.confirm_password.errors %}
+                <span class="error-message">{{ error }}</span>
+                {% endfor %} {% endif %}
               </div>
+              <br />
               <div class="form-element">
                 {{ signup.submit(class="form-field submit-btn") }}
               </div>
@@ -84,6 +112,11 @@
 
       const loginBtn = document.querySelector("#login-btn");
       const signupBtn = document.querySelector("#signup-btn");
+
+      const showSignup = "{{ show_signup }}";
+      if (showSignup === "True") {
+        signupBtn.click();
+      }
 
       function login() {
         loginForm.classList.remove("no-display");

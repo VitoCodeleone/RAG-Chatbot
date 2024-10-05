@@ -119,6 +119,11 @@ main {
   display: none;
 }
 
+.error-message {
+  display: block;
+  color: red;
+}
+
 /* start of chat.html */
 
 .chat-container {
