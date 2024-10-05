@@ -6,6 +6,7 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
 from dotenv import load_dotenv
 from src.prompt import *
+from src.forms import *
 import os
 
 app = Flask(__name__)
@@ -14,6 +15,8 @@ load_dotenv()
 PINECONE_API_KEY = os.getenv('PINECONE_API_KEY')
 HF_TOKEN = os.getenv('HF_TOKEN')
 HUGGINGFACEHUB_API_TOKEN = os.getenv('HUGGINGFACEHUB_API_TOKEN')
+
+app.config["SECRET_KEY"] = os.getenv('SECRET_KEY')
 
 embedding = download_hf_embeddings()
 
@@ -36,10 +39,12 @@ rag_chain = (
     | StrOutputParser()
 )
 
-@app.route("/")
-@app.route("/home")
+@app.route("/", methods=['GET', 'POST'])
+@app.route("/home", methods=['GET', 'POST'])
 def home():
-    return render_template("chat.html", title="Chatbot")
+    login = LoginForm()
+    signup = SignUpForm()
+    return render_template("home.html", title="Home", login=login, signup=signup), 200
 
 @app.route("/get", methods=["GET", "POST"])
 def chat():
@@ -47,7 +52,7 @@ def chat():
         msg = request.get_json()
         input = msg["msg"]
         result = ''.join(rag_chain.stream(input))
-        return str(result)
+        return str(result), 200
     except:
         return 'ServerError: Please try again later'
 

@@ -5,29 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- Link to the external CSS file -->
     <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}" />
-    <title>Medical Chatbot</title>
+    <title>{{ title }}</title>
   </head>
   <body>
-    <div class="container">
-      <div class="infobar">
-        <p></p>
-        <img src="{{url_for('static', filename='nurse.png')}}" alt="" />
-        <h2>Ask me anything!</h2>
-      </div>
+    <div class="chat-container">
+      <div class="container">
+        <div class="infobar">
+          <p></p>
+          <img src="{{url_for('static', filename='nurse.png')}}" alt="" />
+          <h2>Ask me anything!</h2>
+        </div>
 
-      <div class="messageArea"></div>
+        <div class="messageArea"></div>
 
-      <div class="messageInput">
-        <form action="/get" id="userForm" method="post">
-          <input
-            type="text"
-            name="msg"
-            id="msg"
-            placeholder="Type your message..."
-            required
-            autocomplete="off"
-          />
-        </form>
+        <div class="messageInput">
+          <form action="/get" id="userForm" method="post">
+            <input
+              type="text"
+              name="msg"
+              id="msg"
+              placeholder="Type your message..."
+              required
+              autocomplete="off"
+            />
+          </form>
+        </div>
       </div>
     </div>
 

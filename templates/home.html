@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../static/style.css" />
+    <title>{{ title }}</title>
+  </head>
+  <body>
+    <div class="home-container">
+      <header>
+        <h1>ChatBot</h1>
+      </header>
+
+      <main>
+        <div class="form-container">
+          <div class="button-box">
+            <button
+              type="button"
+              class="toggle-btn current-btn"
+              id="login-btn"
+              onclick="login()"
+            >
+              Login
+            </button>
+            <button
+              type="button"
+              class="toggle-btn"
+              id="signup-btn"
+              onclick="signup()"
+            >
+              Sign Up
+            </button>
+          </div>
+
+          <div class="form-box">
+            <form action="" class="form-element" id="login-form">
+              {{ login.hidden_tag() }}
+              <div class="email">
+                {{ login.email.label(class="form-label") }} {{
+                login.email(class="form-field") }}
+              </div>
+              <br />
+              <div class="form-element">
+                {{ login.password.label(class="form-label") }} {{
+                login.password(class="form-field") }}
+              </div>
+              <br />
+              <div class="form-element">
+                {{ login.submit(class="form-field submit-btn") }}
+              </div>
+              <br />
+            </form>
+
+            <form action="" class="form-element no-display" id="signup-form">
+              {{ signup.hidden_tag() }}
+              <div class="email">
+                {{ signup.email.label(class="form-label") }} {{
+                signup.email(class="form-field") }}
+              </div>
+              <br />
+              <div class="form-element">
+                {{ signup.password.label(class="form-label") }} {{
+                signup.password(class="form-field") }}
+              </div>
+              <br />
+              <div class="form-element">
+                {{ signup.confirm_password.label(class="form-label") }} {{
+                signup.confirm_password(class="form-field") }}
+              </div>
+              <div class="form-element">
+                {{ signup.submit(class="form-field submit-btn") }}
+              </div>
+              <br />
+            </form>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      const loginForm = document.querySelector("#login-form");
+      const signupForm = document.querySelector("#signup-form");
+
+      const loginBtn = document.querySelector("#login-btn");
+      const signupBtn = document.querySelector("#signup-btn");
+
+      function login() {
+        loginForm.classList.remove("no-display");
+        signupForm.classList.add("no-display");
+
+        loginBtn.classList.add("current-btn");
+        signupBtn.classList.remove("current-btn");
+      }
+
+      function signup() {
+        loginForm.classList.add("no-display");
+        signupForm.classList.remove("no-display");
+
+        loginBtn.classList.remove("current-btn");
+        signupBtn.classList.add("current-btn");
+      }
+    </script>
+  </body>
+</html>
