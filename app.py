@@ -1,6 +1,7 @@
 from flask import Flask, render_template, jsonify, request, redirect, flash, url_for
 from flask_pymongo import PyMongo
 from flask_bcrypt import Bcrypt
+from werkzeug.utils import secure_filename
 from src.helper import download_hf_embeddings
 from langchain_community.vectorstores import Pinecone
 from langchain_ollama import ChatOllama
@@ -113,7 +114,18 @@ def signup():
 
 @app.route("/dashboard")
 def dashboard():
-    return render_template("dashboard.html", title="Dashboard")
+    upload_form = UploadForm()
+    return render_template("dashboard.html", title="Dashboard", upload=upload_form)
+
+@app.route("/pdf-upload", methods=["GET", "POST"])
+def upload():
+    upload_form = UploadForm()
+    if upload_form.validate_on_submit():
+        file = upload_form.pdf.data
+        file.save(os.path.join("./data", secure_filename(file.filename)))
+        return redirect(url_for("chat"))
+    
+    return render_template("dashboard.html", title="Dashboard", upload=upload_form)
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -11,6 +11,7 @@ body {
   width: 100%;
   height: 100vh;
 }
+
 /* start of home.html */
 .home-container {
   width: 100%;
@@ -25,7 +26,7 @@ header {
   justify-content: center;
 }
 
-main {
+.home-hero {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -270,4 +271,65 @@ main {
 
 input:focus {
   outline: none;
+}
+
+/* start of dashboard.html*/
+
+.dashboard-container {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-hero {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.upload-container {
+  width: 380px;
+  height: 480px;
+  background-color: #1a2a4b;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.upload-container h3 {
+  margin: 30px auto;
+}
+
+.upload-form {
+  height: 80%;
+  width: 80%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#upload-field {
+  display: none;
+}
+
+.upload-box {
+  display: flex;
+  width: 300px;
+  height: 200px;
+  border: 2px dashed #080f1e;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 20px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.upload-box i {
+  font-size: 30px;
 }

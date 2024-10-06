@@ -3,13 +3,53 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}" />
+    <script
+      src="https://kit.fontawesome.com/d036985314.js"
+      crossorigin="anonymous"
+    ></script>
     <title>{{ title }}</title>
   </head>
   <body>
-    <header>
-      <h1>ChatBot</h1>
-    </header>
+    <div class="dashboard-container">
+      <header>
+        <h1>Dashboard</h1>
+      </header>
 
-    <main></main>
+      <main class="dashboard-hero">
+        <div class="upload-container">
+          <h3>Upload file here</h3>
+
+          <form
+            action="{{url_for('upload')}}"
+            class="upload-form"
+            method="post"
+            enctype="multipart/form-data"
+          >
+            {{ upload.hidden_tag() }}
+
+            <div>
+              <label for="upload-field" class="upload-box">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <p>Browse files to upload</p> </label
+              >{{ upload.pdf(id="upload-field") }}
+            </div>
+            <br />
+
+            <div>{{ upload.submit(class="form-field submit-btn") }}</div>
+            <br />
+          </form>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      const form = document.querySelector(".upload-box");
+      const fileInput = document.querySelector("#upload-field");
+
+      fileInput.onchange = ({ target }) => {
+        const file = target.files[0];
+      };
+    </script>
   </body>
 </html>
