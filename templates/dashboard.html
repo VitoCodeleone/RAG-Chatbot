@@ -35,7 +35,10 @@
               >{{ upload.pdf(id="upload-field") }}
             </div>
             <br />
-
+            {% with messages = get_flashed_messages() %} {% if messages %} {%
+            for message in messages %}
+            <div class="error-message">{{ message }}</div>
+            {% endfor %} {% endif %} {% endwith %}
             <div>{{ upload.submit(class="form-field submit-btn") }}</div>
             <br />
           </form>
@@ -44,11 +47,32 @@
     </div>
 
     <script>
-      const form = document.querySelector(".upload-box");
+      const uploadBox = document.querySelector(".upload-box");
       const fileInput = document.querySelector("#upload-field");
 
       fileInput.onchange = ({ target }) => {
-        const file = target.files[0];
+        let file = target.files[0];
+        if (file) {
+          let fileInfo = document.querySelector(".file-info");
+          if (fileInfo) {
+            fileInfo.remove();
+          }
+
+          let filename = file.name;
+          let filesize = file.size / 10 ** 6;
+          let unit = filesize < 1 ? "KB" : "MB";
+          filesize = filesize < 1 ? filesize * 1000 : filesize;
+          filesize = filesize.toFixed(2);
+          uploadBox.innerHTML += `
+          <div class="file-info">
+            <i class="fa fa-file"></i>
+            <div class="info">
+              <p>${filename}</p>
+              <p>${filesize}${unit}</p>
+            </div>
+          </div>
+          `;
+        }
       };
     </script>
   </body>

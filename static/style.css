@@ -24,6 +24,7 @@ header {
   width: 100%;
   display: flex;
   justify-content: center;
+  caret-color: transparent;
 }
 
 .home-hero {
@@ -41,6 +42,7 @@ header {
   display: flex;
   flex-direction: column;
   align-items: center;
+  caret-color: transparent;
 }
 
 .button-box {
@@ -292,13 +294,14 @@ input:focus {
 
 .upload-container {
   width: 380px;
-  height: 480px;
+  min-height: 480px;
   background-color: #1a2a4b;
   color: white;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 20px;
+  caret-color: transparent;
 }
 
 .upload-container h3 {
@@ -311,6 +314,7 @@ input:focus {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  caret-color: transparent;
 }
 
 #upload-field {
@@ -319,8 +323,9 @@ input:focus {
 
 .upload-box {
   display: flex;
+  position: relative;
   width: 300px;
-  height: 200px;
+  min-height: 200px;
   border: 2px dashed #080f1e;
   justify-content: center;
   align-items: center;
@@ -332,4 +337,34 @@ input:focus {
 
 .upload-box i {
   font-size: 30px;
+}
+
+.file-info {
+  display: flex;
+  position: absolute;
+  height: 30px;
+  bottom: 10px;
+  margin: 0 auto;
+  gap: 5px;
+}
+
+.file-info i {
+  font-size: 25px;
+}
+
+.info {
+  max-width: 200px;
+  max-height: 40px;
+  display: flex;
+  flex-direction: column;
+}
+
+.info p {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.info p:nth-child(2) {
+  font-size: 12px;
 }

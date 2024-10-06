@@ -122,8 +122,15 @@ def upload():
     upload_form = UploadForm()
     if upload_form.validate_on_submit():
         file = upload_form.pdf.data
-        file.save(os.path.join("./data", secure_filename(file.filename)))
-        return redirect(url_for("chat"))
+        filename = file.filename
+        
+        if filename[-3:] != "pdf":
+            flash("Supported file types: .pdf", "filetype-error")
+        elif len(file.read()) > 5000000:
+            flash("File size should be less than 5MB", "too-large")
+        else:
+            file.save(os.path.join("./data", secure_filename(filename)))
+            return redirect(url_for("chat"))
     
     return render_template("dashboard.html", title="Dashboard", upload=upload_form)
 
