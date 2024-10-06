@@ -21,8 +21,7 @@ HUGGINGFACEHUB_API_TOKEN = os.getenv('HUGGINGFACEHUB_API_TOKEN')
 app.config["SECRET_KEY"] = os.getenv('SECRET_KEY')
 app.config["MONGO_URI"] = os.getenv('MONGO_URI')
 
-mongo_client = PyMongo(app)
-db = mongo_client.db
+db = PyMongo(app).db
 
 bcrypt = Bcrypt(app)
 
@@ -73,7 +72,19 @@ def login():
     login_form = LoginForm()
     signup_form = SignUpForm()
     if login_form.validate_on_submit():
-        return redirect(url_for("dashboard"))
+        email = signup_form.email.data
+        password = signup_form.password.data
+
+        user = db.users.find_one({"email": email})
+
+        if user:
+            if bcrypt.check_password_hash(user['password'], password):
+                return redirect(url_for("dashboard"))
+            
+            else:
+                flash("Incorrect password. Please try again", "password-error")
+        else:
+            flash("Email address does not exist", "email-not-exists")
 
     return render_template("home.html", title="Home", login=login_form, signup=signup_form)
 
@@ -82,7 +93,21 @@ def signup():
     login_form = LoginForm()
     signup_form = SignUpForm()
     if signup_form.validate_on_submit():
-        return redirect(url_for("dashboard"))
+        email = signup_form.email.data
+        password = signup_form.password.data
+
+        if db.users.find_one({"email": email}):
+            flash("Email address already exists", "email-exists")
+            
+        else:
+            hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+
+            db.users.insert_one({
+                "email": email,
+                "password": hashed_password
+            })
+
+            return redirect(url_for("dashboard"))
 
     return render_template("home.html", title="Home", login=login_form, signup=signup_form, show_signup=True)
 
