@@ -14,6 +14,13 @@
     <div class="dashboard-container">
       <header>
         <h1>Dashboard</h1>
+        <div class="login-info">
+          {% with messages = get_flashed_messages(category_filter='email') %} {%
+          if messages %} {% for message in messages %}
+          <p>{{ message }}</p>
+          {% endfor %} {% endif %} {% endwith %}
+          <a href="{{url_for('logout')}}">Logout</a>
+        </div>
       </header>
 
       <main class="dashboard-hero">
@@ -35,8 +42,9 @@
               >{{ upload.pdf(id="upload-field") }}
             </div>
             <br />
-            {% with messages = get_flashed_messages() %} {% if messages %} {%
-            for message in messages %}
+            {% with messages =
+            get_flashed_messages(category_filter=["filetype-error",
+            "too-large"]) %} {% if messages %} {% for message in messages %}
             <div class="error-message">{{ message }}</div>
             {% endfor %} {% endif %} {% endwith %}
             <div>{{ upload.submit(class="form-field submit-btn") }}</div>
@@ -59,7 +67,7 @@
           }
 
           let filename = file.name;
-          let filesize = file.size / 10 ** 6;
+          let filesize = file.size / (1024 * 1024);
           let unit = filesize < 1 ? "KB" : "MB";
           filesize = filesize < 1 ? filesize * 1000 : filesize;
           filesize = filesize.toFixed(2);

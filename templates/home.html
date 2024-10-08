@@ -111,6 +111,11 @@
             </form>
           </div>
         </div>
+        {% with messages =
+        get_flashed_messages(category_filter='login-required') %} {% if messages
+        %} {% for message in messages %}
+        <div class="login-error error-message">{{ message }}</div>
+        {% endfor %} {% endif %} {% endwith %}
       </main>
     </div>
 

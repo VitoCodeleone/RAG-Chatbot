@@ -9,26 +9,38 @@
   </head>
   <body>
     <div class="chat-container">
-      <div class="container">
-        <div class="infobar">
-          <p></p>
-          <img src="{{url_for('static', filename='nurse.png')}}" alt="" />
-          <h2>Ask me anything!</h2>
+      <header>
+        <h1>Chatbot</h1>
+        {% with messages = get_flashed_messages(category_filter='email') %} {%
+        if messages %} {% for message in messages %}
+        <div class="login-info">
+          <p>{{ message }}</p>
+          {% endfor %} {% endif %} {% endwith %}
+          <a href="{{url_for('logout')}}">Logout</a>
         </div>
+      </header>
+      <div class="chat-hero">
+        <div class="container">
+          <div class="infobar">
+            <p></p>
+            <img src="{{url_for('static', filename='nurse.png')}}" alt="" />
+            <h2>Ask me anything!</h2>
+          </div>
 
-        <div class="messageArea"></div>
+          <div class="messageArea"></div>
 
-        <div class="messageInput">
-          <form action="{{url_for('reply')}}" id="userForm" method="post">
-            <input
-              type="text"
-              name="msg"
-              id="msg"
-              placeholder="Type your message..."
-              required
-              autocomplete="off"
-            />
-          </form>
+          <div class="messageInput">
+            <form action="{{url_for('reply')}}" id="userForm" method="post">
+              <input
+                type="text"
+                name="msg"
+                id="msg"
+                placeholder="Type your message..."
+                required
+                autocomplete="off"
+              />
+            </form>
+          </div>
         </div>
       </div>
     </div>

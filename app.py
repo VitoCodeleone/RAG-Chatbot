@@ -1,6 +1,7 @@
-from flask import Flask, render_template, jsonify, request, redirect, flash, url_for
+from flask import Flask, render_template, jsonify, request, redirect, flash, url_for, session, make_response
 from flask_pymongo import PyMongo
 from flask_bcrypt import Bcrypt
+from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 from werkzeug.utils import secure_filename
 from src.helper import download_hf_embeddings
 from langchain_community.vectorstores import Pinecone
@@ -56,6 +57,11 @@ def home():
 
 @app.route("/chat")
 def chat():
+    if "email" not in session:
+        flash("Please login first!", "login-required")
+        return redirect(url_for("home", next=request.url))
+    else:
+        flash(f"{session['email']}", "email")
     return render_template("chat.html", title="Chatbot")
 
 @app.route("/reply", methods=["GET", "POST"])
@@ -66,7 +72,7 @@ def reply():
         result = ''.join(rag_chain.stream(input))
         return str(result), 200
     except:
-        return 'ServerError: Please try again later'
+        return 'ServerError: Please try again later', 500
     
 @app.route("/login", methods=['GET', 'POST'])
 def login():
@@ -80,14 +86,16 @@ def login():
 
         if user:
             if bcrypt.check_password_hash(user['password'], password):
-                return redirect(url_for("dashboard"))
+                session["email"] = email
+                next_url = request.args.get("next")
+                return redirect(next_url or url_for("dashboard"))
             
             else:
                 flash("Incorrect password. Please try again", "password-error")
         else:
             flash("Email address does not exist", "email-not-exists")
 
-    return render_template("home.html", title="Home", login=login_form, signup=signup_form)
+    return render_template("home.html", title="Home", login=login_form, signup=signup_form), 400
 
 @app.route("/signup", methods=['GET', 'POST'])
 def signup():
@@ -108,17 +116,36 @@ def signup():
                 "password": hashed_password
             })
 
-            return redirect(url_for("dashboard"))
+            session["email"] = email
+            next_url = request.args.get("next")
+            return redirect(next_url or url_for("dashboard"))
 
-    return render_template("home.html", title="Home", login=login_form, signup=signup_form, show_signup=True)
+    return render_template("home.html", title="Home", login=login_form, signup=signup_form, show_signup=True), 400
+
+@app.route("/logout")
+def logout():
+    session.pop('email', None)
+    redir = make_response(redirect(url_for("home")))
+    redir.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    return redir
 
 @app.route("/dashboard")
 def dashboard():
+    if "email" not in session:
+        flash("Please login first!", "login-required")
+        return redirect(url_for("home", next=request.url))
+    else:
+        flash(f"{session['email']}", "email")
     upload_form = UploadForm()
-    return render_template("dashboard.html", title="Dashboard", upload=upload_form)
+    return render_template("dashboard.html", title="Dashboard", upload=upload_form), 200
 
 @app.route("/pdf-upload", methods=["GET", "POST"])
 def upload():
+    if "email" not in session:
+        flash("Please login first!", "login-required")
+        return redirect(url_for("home", next=request.url))
+    else:
+        flash(f"{session['email']}", "email")
     upload_form = UploadForm()
     if upload_form.validate_on_submit():
         file = upload_form.pdf.data
@@ -126,13 +153,13 @@ def upload():
         
         if filename[-3:] != "pdf":
             flash("Supported file types: .pdf", "filetype-error")
-        elif len(file.read()) > 5000000:
+        elif len(file.read()) > 5 * 1024 * 1024:
             flash("File size should be less than 5MB", "too-large")
         else:
             file.save(os.path.join("./data", secure_filename(filename)))
             return redirect(url_for("chat"))
     
-    return render_template("dashboard.html", title="Dashboard", upload=upload_form)
+    return render_template("dashboard.html", title="Dashboard", upload=upload_form), 400
 
 if __name__ == "__main__":
     app.run(debug=True)
