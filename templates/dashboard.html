@@ -15,10 +15,7 @@
       <header>
         <h1>Dashboard</h1>
         <div class="login-info">
-          {% with messages = get_flashed_messages(category_filter='email') %} {%
-          if messages %} {% for message in messages %}
-          <p>{{ message }}</p>
-          {% endfor %} {% endif %} {% endwith %}
+          <p>{{ email }}</p>
           <a href="{{url_for('logout')}}">Logout</a>
         </div>
       </header>

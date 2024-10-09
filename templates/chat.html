@@ -11,11 +11,8 @@
     <div class="chat-container">
       <header>
         <h1>Chatbot</h1>
-        {% with messages = get_flashed_messages(category_filter='email') %} {%
-        if messages %} {% for message in messages %}
         <div class="login-info">
-          <p>{{ message }}</p>
-          {% endfor %} {% endif %} {% endwith %}
+          <p>{{ email }}</p>
           <a href="{{url_for('logout')}}">Logout</a>
         </div>
       </header>

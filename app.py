@@ -1,16 +1,13 @@
 from flask import Flask, render_template, jsonify, request, redirect, flash, url_for, session, make_response
 from flask_pymongo import PyMongo
 from flask_bcrypt import Bcrypt
-from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 from werkzeug.utils import secure_filename
 from src.helper import download_hf_embeddings
 from langchain_community.vectorstores import Pinecone
-from langchain_ollama import ChatOllama
-from langchain_core.output_parsers import StrOutputParser
-from langchain_core.runnables import RunnablePassthrough
 from dotenv import load_dotenv
 from src.prompt import *
 from src.forms import *
+from src.helper import *
 import os
 
 app = Flask(__name__)
@@ -22,6 +19,7 @@ HUGGINGFACEHUB_API_TOKEN = os.getenv('HUGGINGFACEHUB_API_TOKEN')
 
 app.config["SECRET_KEY"] = os.getenv('SECRET_KEY')
 app.config["MONGO_URI"] = os.getenv('MONGO_URI')
+app.config["UPLOAD_PATH"] = "./data"
 
 db = PyMongo(app).db
 
@@ -29,24 +27,6 @@ bcrypt = Bcrypt(app)
 
 embedding = download_hf_embeddings()
 
-index_name = "medical-chatbot"
-docsearch = Pinecone.from_existing_index(index_name, embedding)
-retriever = docsearch.as_retriever(search_type="similarity", search_kwargs={"k": 6})
-
-
-local_llm = 'llama3.2'
-llm = ChatOllama(model=local_llm)
-
-def format_docs(docs):
-    return "\n\n".join(doc.page_content for doc in docs)
-
-
-rag_chain = (
-    {"context": retriever | format_docs, "question": RunnablePassthrough()}
-    | prompt
-    | llm
-    | StrOutputParser()
-)
 
 @app.route("/", methods=['GET', 'POST'])
 @app.route("/home", methods=['GET', 'POST'])
@@ -60,15 +40,16 @@ def chat():
     if "email" not in session:
         flash("Please login first!", "login-required")
         return redirect(url_for("home", next=request.url))
-    else:
-        flash(f"{session['email']}", "email")
-    return render_template("chat.html", title="Chatbot")
+    
+    return render_template("chat.html", title="Chatbot", email=session["email"])
 
 @app.route("/reply", methods=["GET", "POST"])
 def reply():
     try:
         msg = request.get_json()
         input = msg["msg"]
+        retriever = create_retriever(session["index_name"], embedding)
+        rag_chain = create_rag_chain(retriever, prompt)
         result = ''.join(rag_chain.stream(input))
         return str(result), 200
     except:
@@ -134,32 +115,32 @@ def dashboard():
     if "email" not in session:
         flash("Please login first!", "login-required")
         return redirect(url_for("home", next=request.url))
-    else:
-        flash(f"{session['email']}", "email")
+
     upload_form = UploadForm()
-    return render_template("dashboard.html", title="Dashboard", upload=upload_form), 200
+    return render_template("dashboard.html", title="Dashboard", upload=upload_form, email=session["email"]), 200
 
 @app.route("/pdf-upload", methods=["GET", "POST"])
 def upload():
     if "email" not in session:
         flash("Please login first!", "login-required")
         return redirect(url_for("home", next=request.url))
-    else:
-        flash(f"{session['email']}", "email")
+
     upload_form = UploadForm()
     if upload_form.validate_on_submit():
         file = upload_form.pdf.data
-        filename = file.filename
+        filename = secure_filename(file.filename)
         
         if filename[-3:] != "pdf":
             flash("Supported file types: .pdf", "filetype-error")
-        elif len(file.read()) > 5 * 1024 * 1024:
-            flash("File size should be less than 5MB", "too-large")
+        elif len(file.read()) > 20 * 1024 * 1024:
+            flash("File size should be less than 20MB", "too-large")
         else:
-            file.save(os.path.join("./data", secure_filename(filename)))
+            file.seek(0)
+            file.save(os.path.join(app.config["UPLOAD_PATH"], filename))
+            session["index_name"] = store_index(app.config["UPLOAD_PATH"], filename, embedding)
             return redirect(url_for("chat"))
     
-    return render_template("dashboard.html", title="Dashboard", upload=upload_form), 400
+    return render_template("dashboard.html", title="Dashboard", upload=upload_form, email=session["email"]), 400
 
 if __name__ == "__main__":
     app.run(debug=True)
