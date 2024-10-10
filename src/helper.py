@@ -45,8 +45,7 @@ def download_hf_embeddings():
 def create_index_name(pdf):
     base_name = pdf.rsplit('.', 1)[0]
     sanitized_name = re.sub(r'[^a-z0-9]+', '-', base_name.lower()).strip('-')
-    unique_id = str(uuid.uuid4())[:8]
-    return f"{sanitized_name}-{unique_id}"
+    return sanitized_name
 
 #store_index
 def store_index(upload_dir, filename, embedding):

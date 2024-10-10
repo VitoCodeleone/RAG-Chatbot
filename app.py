@@ -3,7 +3,6 @@ from flask_pymongo import PyMongo
 from flask_bcrypt import Bcrypt
 from werkzeug.utils import secure_filename
 from src.helper import download_hf_embeddings
-from langchain_community.vectorstores import Pinecone
 from dotenv import load_dotenv
 from src.prompt import *
 from src.forms import *
@@ -31,6 +30,9 @@ embedding = download_hf_embeddings()
 @app.route("/", methods=['GET', 'POST'])
 @app.route("/home", methods=['GET', 'POST'])
 def home():
+    if "email" in session:
+        flash("Please logout first", "logout-message")
+        return redirect(url_for("dashboard"))
     login = LoginForm()
     signup = SignUpForm()
     return render_template("home.html", title="Home", login=login, signup=signup), 200
@@ -45,6 +47,9 @@ def chat():
 
 @app.route("/reply", methods=["GET", "POST"])
 def reply():
+    if "email" not in session:
+        flash("Please login first!", "login-required")
+        return redirect(url_for("home", next=request.url))
     try:
         msg = request.get_json()
         input = msg["msg"]
@@ -106,9 +111,8 @@ def signup():
 @app.route("/logout")
 def logout():
     session.pop('email', None)
-    redir = make_response(redirect(url_for("home")))
-    redir.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
-    return redir
+    session.pop('index-name', None)
+    return redirect(url_for("home"))
 
 @app.route("/dashboard")
 def dashboard():

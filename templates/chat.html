@@ -20,7 +20,7 @@
         <div class="container">
           <div class="infobar">
             <p></p>
-            <img src="{{url_for('static', filename='nurse.png')}}" alt="" />
+            <img src="{{url_for('static', filename='robot.png')}}" alt="" />
             <h2>Ask me anything!</h2>
           </div>
 
@@ -69,6 +69,13 @@
           <div class="message message-user">${userText}</div>
         </div>`;
 
+          messageArea.innerHTML += `<div class="messageContainer ai">
+          <div class="messageInfo">
+            <img src="{{url_for('static', filename='robot.png')}}" alt="" />
+          </div>
+          <div class="message message-ai reponse-wait">•••</div>
+        </div>`;
+
           const jsonData = {
             msg: userText,
           };
@@ -86,6 +93,8 @@
               return resp.text();
             })
             .then((data) => {
+              messageArea.removeChild(messageArea.lastChild);
+
               var curDate = new Date();
               var curTimeText =
                 appendZero(curDate.getHours()) +
@@ -93,7 +102,7 @@
                 appendZero(curDate.getMinutes());
               messageArea.innerHTML += ` <div class="messageContainer ai">
           <div class="messageInfo">
-            <img src="{{url_for('static', filename='nurse.png')}}" alt="" />
+            <img src="{{url_for('static', filename='robot.png')}}" alt="" />
             <h5>${curTimeText}</h5>
           </div>
           <div class="message message-ai">${data}</div>

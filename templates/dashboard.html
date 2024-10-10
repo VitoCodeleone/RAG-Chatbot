@@ -48,7 +48,18 @@
             <br />
           </form>
         </div>
+        {% with messages =
+        get_flashed_messages(category_filter='logout-message') %} {% if messages
+        %} {% for message in messages %}
+        <div class="authentication-error error-message">{{ message }}</div>
+        {% endfor %} {% endif %} {% endwith %}
       </main>
+    </div>
+
+    <div class="wait-hero no-display">
+      <div class="wait-container">
+        <div class="wait-circle"></div>
+      </div>
     </div>
 
     <script>
@@ -79,6 +90,10 @@
           `;
         }
       };
+
+      document.querySelector(".upload-form").addEventListener("submit", () => {
+        document.querySelector(".wait-hero").classList.remove("no-display");
+      });
     </script>
   </body>
 </html>
