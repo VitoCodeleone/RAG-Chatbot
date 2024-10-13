@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify, request, redirect, flash, url_for, session, make_response
+from flask import Flask, render_template, jsonify, request, redirect, flash, url_for, session, make_response, Response
 from flask_pymongo import PyMongo
 from flask_bcrypt import Bcrypt
 from werkzeug.utils import secure_filename
@@ -8,6 +8,7 @@ from src.prompt import *
 from src.forms import *
 from src.helper import *
 import os
+import asyncio
 
 app = Flask(__name__)
 
@@ -50,16 +51,27 @@ def reply():
     if "email" not in session:
         flash("Please login first!", "login-required")
         return redirect(url_for("home", next=request.url))
-    try:
-        msg = request.get_json()
-        input = msg["msg"]
-        retriever = create_retriever(session["index_name"], embedding)
-        rag_chain = create_rag_chain(retriever, prompt)
-        result = ''.join(rag_chain.stream(input))
-        return str(result), 200
-    except:
-        return 'ServerError: Please try again later', 500
     
+    msg = request.get_json()
+    input = msg["msg"]
+    session["input"] = input
+    return {"status": "Input received"}, 200
+
+@app.route("/stream")
+def stream():
+    retriever = create_retriever(session["index_name"], embedding)
+    rag_chain = create_rag_chain(retriever, prompt)
+
+    def generate_stream(input):
+        for text in rag_chain.stream(input):
+            yield f"data: {text}\n\n"
+
+    resp = make_response(generate_stream(session["input"]))
+    resp.headers["Content-type"] = "text/event-stream"
+    resp.headers["Cache-Control"] = "no-cache"
+    resp.headers["Connection"] = "keep-alive"
+    return resp, 200
+     
 @app.route("/login", methods=['GET', 'POST'])
 def login():
     login_form = LoginForm()
@@ -124,7 +136,7 @@ def dashboard():
     return render_template("dashboard.html", title="Dashboard", upload=upload_form, email=session["email"]), 200
 
 @app.route("/pdf-upload", methods=["GET", "POST"])
-def upload():
+async def upload():
     if "email" not in session:
         flash("Please login first!", "login-required")
         return redirect(url_for("home", next=request.url))
@@ -141,7 +153,8 @@ def upload():
         else:
             file.seek(0)
             file.save(os.path.join(app.config["UPLOAD_PATH"], filename))
-            session["index_name"] = store_index(app.config["UPLOAD_PATH"], filename, embedding)
+            session["index_name"] = await store_index(app.config["UPLOAD_PATH"], filename, embedding)
+            os.remove(os.path.join(app.config["UPLOAD_PATH"], filename))
             return redirect(url_for("chat"))
     
     return render_template("dashboard.html", title="Dashboard", upload=upload_form, email=session["email"]), 400

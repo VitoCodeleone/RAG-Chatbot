@@ -8,7 +8,7 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
 import os
 import re
-import uuid
+import asyncio
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -48,7 +48,7 @@ def create_index_name(pdf):
     return sanitized_name
 
 #store_index
-def store_index(upload_dir, filename, embedding):
+async def store_index(upload_dir, filename, embedding):
     path = os.path.join(upload_dir, filename)
     extracted_data = load_pdf(path)
     texts = text_split(extracted_data)
@@ -61,7 +61,7 @@ def store_index(upload_dir, filename, embedding):
             spec=ServerlessSpec(cloud="aws", region="us-east-1"),
             )
         vector_store = PineconeVectorStore(index_name=index_name, embedding=embedding)
-        vector_store.add_texts([t.page_content for t in texts])
+        await vector_store.aadd_texts([t.page_content for t in texts])
     
     return index_name
 
@@ -69,7 +69,7 @@ def store_index(upload_dir, filename, embedding):
 def create_retriever(index_name, embedding):
     try:
         docsearch = PineconeVectorStore(index_name=index_name, embedding=embedding)
-        retriever = docsearch.as_retriever(search_type="similarity", search_kwargs={"k": 6})
+        retriever = docsearch.as_retriever(search_type="similarity", search_kwargs={"k": 4})
         return retriever
     except:
         print("Error in creating retriever")

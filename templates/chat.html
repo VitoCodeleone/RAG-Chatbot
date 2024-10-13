@@ -43,12 +43,15 @@
     </div>
 
     <script>
-      var date = new Date();
-      var appendZero = (unit) => {
-        return (unit < 10 ? "0" : "") + unit;
-      };
-      var dateText =
-        appendZero(date.getHours()) + ":" + appendZero(date.getMinutes());
+      function getTime() {
+        var date = new Date();
+        var appendZero = (unit) => {
+          return (unit < 10 ? "0" : "") + unit;
+        };
+        var dateText =
+          appendZero(date.getHours()) + ":" + appendZero(date.getMinutes());
+        return dateText;
+      }
 
       document
         .getElementById("userForm")
@@ -64,7 +67,7 @@
           messageArea.innerHTML += `<div class="messageContainer user">
           <div class="messageInfo">
             <img src="{{url_for('static', filename='user.png')}}" alt="" />
-            <h5>${dateText}</h5>
+            <h5>${getTime()}</h5>
           </div>
           <div class="message message-user">${userText}</div>
         </div>`;
@@ -73,7 +76,7 @@
           <div class="messageInfo">
             <img src="{{url_for('static', filename='robot.png')}}" alt="" />
           </div>
-          <div class="message message-ai reponse-wait">•••</div>
+          <div class="message message-ai response-wait">•••</div>
         </div>`;
 
           const jsonData = {
@@ -90,23 +93,29 @@
 
           fetch("{{url_for('reply')}}", options)
             .then((resp) => {
-              return resp.text();
-            })
-            .then((data) => {
-              messageArea.removeChild(messageArea.lastChild);
+              const messageAis = document.querySelectorAll(".message-ai");
+              var curMessage = messageAis[messageAis.length - 1];
 
-              var curDate = new Date();
-              var curTimeText =
-                appendZero(curDate.getHours()) +
-                ":" +
-                appendZero(curDate.getMinutes());
-              messageArea.innerHTML += ` <div class="messageContainer ai">
-          <div class="messageInfo">
-            <img src="{{url_for('static', filename='robot.png')}}" alt="" />
-            <h5>${curTimeText}</h5>
-          </div>
-          <div class="message message-ai">${data}</div>
-        </div>`;
+              const messageInfos = document.querySelectorAll(".messageInfo");
+              var messageInfo = messageInfos[messageInfos.length - 1];
+
+              const eventSource = new EventSource("{{ url_for('stream') }}");
+
+              eventSource.onmessage = function (event) {
+                if (curMessage.classList.contains("response-wait")) {
+                  curMessage.classList.remove("response-wait");
+                  curMessage.innerHTML = "";
+                  messageInfo.innerHTML += `<h5>${getTime()}</h5>`;
+                }
+                curMessage.innerHTML += event.data;
+              };
+
+              eventSource.onerror = function (event) {
+                eventSource.close();
+              };
+            })
+            .catch((e) => {
+              console.log("Error sending message: ", e);
             });
         });
     </script>
